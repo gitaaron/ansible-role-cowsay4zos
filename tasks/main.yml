@@ -1,2 +1,25 @@
 ---
 # tasks file for ansible-role-cowsay4zos
+- name: upload pax archive
+  copy:
+    src: ./cowsay-3.03.pax
+    dest: .
+- name: unpack archive to current location
+  shell: pax -zrf cowsay-3.03.pax
+- name: tag all files as ascii
+  shell: chtag -Rtc ISO8859-1 cowsay-3.03
+- name: ensure install location exists
+  file:
+    path: "{{ install_prefix }}"
+    state: directory
+- name: perform install to prefix
+  shell: "cd cowsay-3.03 && echo {{ install_prefix }} | sh install.sh"
+- name: tag cow files as ascii
+  shell: "chtag -Rtc ISO8859-1 {{ install_prefix }}/share/cows"
+- name: check if cowsay bin already on system-wide PATH
+  shell: "cat {{ path_to_bash_profile }}"
+  register: echo_path_result
+  ignore_errors: yes
+- name: add cowsay bin system-wide PATH
+  shell: "echo PATH=\\$PATH:{{ install_prefix }}/bin >> {{ path_to_bash_profile }}"
+  when: echo_path_result['stdout'].find('/home/ansible/install/bin') == -1

@@ -1,2 +1,4 @@
 ---
 # defaults file for ansible-role-cowsay4zos
+install_prefix: /usr/lpp/rocket/cowsay
+path_to_bash_profile: /usr/local/.bash_profile
